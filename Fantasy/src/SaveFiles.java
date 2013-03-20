@@ -39,7 +39,6 @@ public class SaveFiles {
 	double predA;
 	PredAveBox totalWins;
 
-	
 	// pred, avg
 	public SaveFiles(String arg0, String arg1) {
 		long startTime = System.currentTimeMillis();
@@ -54,7 +53,6 @@ public class SaveFiles {
 		saveFile(readFile(arg1), "/home/fantasybb/scraper/records/" + date + "-averages.html");
 		System.out.println("\n***************************** DONE SAVING ************************************\n");
 		openSQLConnection = new OpenSQLConnection();
-
 		openSQLConnection.addSuperPlayers(scraper(arg0, getHTTPResponse(realStatsUrl), arg1));
 		System.out.println("Total time: " + (System.currentTimeMillis() - startTime) / 1000 + " seconds");
 		System.out.println("\n----------------------------- DONE ------------------------------------\n");
@@ -65,18 +63,17 @@ public class SaveFiles {
 		scan = new Scanner(System.in);
 		homeScore = openSQLConnection.getHomeScore();
 		awayScore = openSQLConnection.getAwayScore();
-		predH = Integer.parseInt(homeScore.substring(0,homeScore.indexOf(" ")));
-		homeH = Integer.parseInt(homeScore.substring(1+homeScore.indexOf(" ")));
-		predA = Integer.parseInt(awayScore.substring(0,awayScore.indexOf(" ")));
-		homeA = Integer.parseInt(awayScore.substring(1+awayScore.indexOf(" ")));
+		predH = Integer.parseInt(homeScore.substring(0, homeScore.indexOf(" ")));
+		homeH = Integer.parseInt(homeScore.substring(1 + homeScore.indexOf(" ")));
+		predA = Integer.parseInt(awayScore.substring(0, awayScore.indexOf(" ")));
+		homeA = Integer.parseInt(awayScore.substring(1 + awayScore.indexOf(" ")));
 
 		totalWins = new PredAveBox();
 		openSQLConnection.setTotalPredAveScores(totalWins);
-		
+
 		while (true) {
 			System.out.println("Menu:\nr) rescrape\np) print files\nh) home\na) away\nf) full report\nq) quit");
 			choice = scan.nextLine();
-
 			switch (choice.charAt(0)) {
 			case 'r':
 				System.out.println("Are you sure? Could take up to 10 minutes (enter y/n)");
@@ -95,29 +92,28 @@ public class SaveFiles {
 				break;
 			case 'h':
 				System.out.println("pred-home:\n" + homeScore);
-				System.out.println(predH/(predH+homeH));
-				
+				System.out.println(predH / (predH + homeH));
+
 				break;
 			case 'a':
 				System.out.println("pred-home:\n" + awayScore);
-				System.out.println(predA/(predA+homeA));
-				
+				System.out.println(predA / (predA + homeA));
+
 				break;
 			case 'f':
 				System.out.println("Full report.");
 				System.out.println("Total Accuracy: " + totalWins.getAccuracy());
-				System.out.println("Home accuracy: " + predH/(predH+homeH));
-				System.out.println("Away accuracy: " + predA/(predA+homeA));
-
-				openSQLConnection.bestPredictionsOnMinProjected();
-				
+				System.out.println("Home accuracy: " + predH / (predH + homeH));
+				System.out.println("Away accuracy: " + predA / (predA + homeA));
+				openSQLConnection.bestPredictionsOnTeam();
+				openSQLConnection.bestCategoryPredicted();
+				openSQLConnection.bestPredictionsOnMinAveraged();
 				break;
 			default:
 				System.out.println("Command unrecognized.");
 				break;
 			}
 		}
-
 	}
 
 	private void printFiles() {
@@ -174,7 +170,15 @@ public class SaveFiles {
 			}
 		}
 
-		// TODO make something to remove duplicates here.
+		// Remove duplicates.
+		for (int i = 0; i < superPlayers.size(); i++) {
+			for (int j = 1; j < superPlayers.size(); j++) {
+				if (i != j && superPlayers.get(i).name == superPlayers.get(j).name && superPlayers.get(i).date == superPlayers.get(j).date) {
+					superPlayers.remove(j);
+				}
+			}
+
+		}
 		return superPlayers;
 	}
 
